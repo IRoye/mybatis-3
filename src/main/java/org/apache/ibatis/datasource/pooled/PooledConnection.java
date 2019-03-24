@@ -25,10 +25,13 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
  * @author Clinton Begin
+ * TMD 的这个就是动态代理的应用！！！！！
  */
 class PooledConnection implements InvocationHandler {
 
   private static final String CLOSE = "close";
+
+//  class的数组对象，用于传递给newProxyInstance作为参数，Connection接口被代理，
   private static final Class<?>[] IFACES = new Class<?>[] { Connection.class };
 
   private final int hashCode;
@@ -54,6 +57,9 @@ class PooledConnection implements InvocationHandler {
     this.createdTimestamp = System.currentTimeMillis();
     this.lastUsedTimestamp = System.currentTimeMillis();
     this.valid = true;
+
+    // 动态产生一个代理者proxyConnection，他要实现的接口就是IFACES，就是Connection.class
+      // 最后一个参数， this,最重要的
     this.proxyConnection = (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(), IFACES, this);
   }
 
@@ -233,6 +239,7 @@ class PooledConnection implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     String methodName = method.getName();
     if (CLOSE.hashCode() == methodName.hashCode() && CLOSE.equals(methodName)) {
+        // 检测到是CLOSE的话，那么直接放回连接池
       dataSource.pushConnection(this);
       return null;
     }

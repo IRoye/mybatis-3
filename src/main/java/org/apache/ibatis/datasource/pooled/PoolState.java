@@ -20,26 +20,40 @@ import java.util.List;
 
 /**
  * @author Clinton Begin
+ *
+ * 用于维护连接吃的活动
+ *
  */
 public class PoolState {
 
   protected PooledDataSource dataSource;
 
+  // 空闲的连接
   protected final List<PooledConnection> idleConnections = new ArrayList<>();
+  // 活跃的连接
   protected final List<PooledConnection> activeConnections = new ArrayList<>();
+  // 请求次数
   protected long requestCount = 0;
+  // 请求获得连接所需的时间
   protected long accumulatedRequestTime = 0;
+  // 连接的使用时间
   protected long accumulatedCheckoutTime = 0;
+  // 统计过期回收连接数
   protected long claimedOverdueConnectionCount = 0;
+  // 统计连接过期使用时间
   protected long accumulatedCheckoutTimeOfOverdueConnections = 0;
+  // 统计获取连接需要等待的时间
   protected long accumulatedWaitTime = 0;
+  // 统计获取连接需要等待的次数
   protected long hadToWaitCount = 0;
+  // 统计无效连接个数
   protected long badConnectionCount = 0;
 
   public PoolState(PooledDataSource dataSource) {
     this.dataSource = dataSource;
   }
 
+  // 必须等待当前线程执行完这个代码块以后才能执行该代码块
   public synchronized long getRequestCount() {
     return requestCount;
   }

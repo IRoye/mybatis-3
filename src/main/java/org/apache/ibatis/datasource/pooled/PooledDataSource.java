@@ -346,6 +346,7 @@ public class PooledDataSource implements DataSource {
   protected void pushConnection(PooledConnection conn) throws SQLException {
 
     synchronized (state) {
+        // 调用了close方法后，需要返回了，这个维护连接状态的state可以把activeConnections状态更新了
       state.activeConnections.remove(conn);
       if (conn.isValid()) {
         if (state.idleConnections.size() < poolMaximumIdleConnections && conn.getConnectionTypeCode() == expectedConnectionTypeCode) {
@@ -390,16 +391,20 @@ public class PooledDataSource implements DataSource {
 
     while (conn == null) {
       synchronized (state) {
+        // 空闲连接不是空
         if (!state.idleConnections.isEmpty()) {
           // Pool has available connection
+          // 返回空闲连接List的第一个
           conn = state.idleConnections.remove(0);
           if (log.isDebugEnabled()) {
             log.debug("Checked out connection " + conn.getRealHashCode() + " from pool.");
           }
         } else {
           // Pool does not have available connection
+          // 如果当期的活跃连接数小于连接池允许的最大允许的连接数
           if (state.activeConnections.size() < poolMaximumActiveConnections) {
             // Can create new connection
+            // 获取一个新连接的操作委托给了UnpooledDataSource
             conn = new PooledConnection(dataSource.getConnection(), this);
             if (log.isDebugEnabled()) {
               log.debug("Created connection " + conn.getRealHashCode() + ".");

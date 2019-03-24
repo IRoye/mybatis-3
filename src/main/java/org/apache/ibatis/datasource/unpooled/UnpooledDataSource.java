@@ -34,12 +34,16 @@ import org.apache.ibatis.io.Resources;
 /**
  * @author Clinton Begin
  * @author Eduardo Macarron
+ *
+ * 这个类对于每次获取请求都简单的打开和关闭连接
+ *
  */
 public class UnpooledDataSource implements DataSource {
 
   private ClassLoader driverClassLoader;
   private Properties driverProperties;
-  private static Map<String, Driver> registeredDrivers = new ConcurrentHashMap<>();
+  // 线程安全的hashMap
+  private static Map<String, Driver> registeredDrivers = new ConcurrentHashMap<String, Driver>();
 
   private String driver;
   private String url;
@@ -197,6 +201,7 @@ public class UnpooledDataSource implements DataSource {
   }
 
   private Connection doGetConnection(Properties properties) throws SQLException {
+    // 注册驱动
     initializeDriver();
     Connection connection = DriverManager.getConnection(url, properties);
     configureConnection(connection);

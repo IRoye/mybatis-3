@@ -30,12 +30,13 @@ import org.apache.ibatis.transaction.Transaction;
 /**
  * @author Clinton Begin
  */
-public interface Executor {
+public interface Executor <E>{
 
   ResultHandler NO_RESULT_HANDLER = null;
 
   int update(MappedStatement ms, Object parameter) throws SQLException;
 
+  // 这个才是一个泛型方法
   <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql) throws SQLException;
 
   <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException;
